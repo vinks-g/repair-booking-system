@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vinton Solutions-Repair Booking</title>
+</head>
+<body>
+    <h2>Vinton Solutions-Book a Repair Service</h2>
+
+    <form id="bookingForm">
+        <input type="text" id="name" placeholder="Your Name" required /><br /><br />
+        <input type="text" id="phone" placeholder="Phone Number" required /><br /><br />
+        <select id="serviceType" required>
+        <option value="">Select Service Type</option>
+        <option value="Phone Repair">Phone Repair</option>
+        <option value="Laptop Repair">Laptop Repair</option>
+        <option value="TV Repair">TV Repair</option>
+        <option value="Game Console Repair">Game Console Repair</option>
+        <option value="Other">Other</option>
+        </select>
+        <br /><br />
+
+        <select id="pickupOption">
+        <option value="Walk-in">Walk-in</option>
+        <option value="Pickup & Delivery">Pickup & Delivery</option>
+        </select>
+        <br /><br />
+
+        <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
+        <br /><br />
+
+        <input type="text" id="deviceType" placeholder="Device Type" required /><br /><br />
+        <textarea id="issueDescription" placeholder="Describe the issue" required></textarea><br /><br />
+        <input type="date" id="bookingDate" required /><br /><br />
+        <button type="submit">Book Now</button>
+    </form>
+
+    <p id="message"></p>
+
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const bookingData = {
+                serviceType: document.getElementById('serviceType').value,
+                pickupOption: document.getElementById('pickupOption').value,
+                locationNotes: document.getElementById('locationNotes').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                deviceType: document.getElementById('deviceType').value,
+                issueDescription: document.getElementById('issueDescription').value,
+                bookingDate: document.getElementById('bookingDate').value
+            };
+
+            const response = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookingData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('message').innerText = "Booking successful!";
+                document.getElementById('bookingForm').reset();
+            } else {
+                document.getElementById('message').innerText = "Error: " + data.error;
+            }
+        });
+    </script>
+</body>
+</html>

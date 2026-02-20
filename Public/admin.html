@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vinton Solutions-Admin Dashboard</title>
+</head>
+<body>
+    <h2>Vinton Solutions-Repair Bookings - Admin</h2>
+    <button onclick="logout()">Logout</button>
+<br /><br />
+
+    <div id="bookings"></div>
+
+    <script>
+
+        function logout() {
+    localStorage.removeItem('isAdmin');
+    window.location.href = '/login.html';
+}
+
+        async function fetchBookings() {
+            const response = await fetch('/api/bookings');
+            const bookings = await response.json();
+
+            const container = document.getElementById('bookings');
+            container.innerHTML = '';
+
+            bookings.forEach(booking => {
+                const div = document.createElement('div');
+                div.style.border = "1px solid black";
+                div.style.padding = "10px";
+                div.style.marginBottom = "10px";
+
+                div.innerHTML = `
+                    <p><strong>Name:</strong> ${booking.name}</p>
+                    <p><strong>Phone:</strong> ${booking.phone}</p>
+                    <p><strong>Device:</strong> ${booking.deviceType}</p>
+                    <p><strong>Service:</strong> ${booking.serviceType || ""}</p>
+                    <p><strong>Pickup:</strong> ${booking.pickupOption || "Walk-in"}</p>
+                    <p><strong>Location Notes:</strong> ${booking.locationNotes || ""}</p>
+                    <p><strong>Price Range:</strong> ${booking.priceRange || "Not set"}</p>
+                    <br />
+                    <label><strong>Set Price Range:</strong></label>
+                    <input type="text" placeholder="e.g. KES 1,500 - 3,000" id="price-${booking._id}" />
+                    <button onclick="setPrice('${booking._id}')">Save</button>
+                    <p><strong>Issue:</strong> ${booking.issueDescription}</p>
+                    <p><strong>Date:</strong> ${new Date(booking.bookingDate).toDateString()}</p>
+                    <p><strong>Status:</strong> ${booking.status}</p>
+                    <p><strong>Technician:</strong> ${booking.technician || "Unassigned"}</p>
+
+                    <label><strong>Change Status:</strong></label>
+                    <select onchange="updateBooking('${booking._id}', this.value, null)">
+                        <option value="">Select</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+
+                    <br /><br />
+
+                    <label><strong>Assign Technician:</strong></label>
+                    <select onchange="updateBooking('${booking._id}', null, this.value)">
+                        <option value="">Select</option>
+                        <option value="Tech A">Tech A</option>
+                        <option value="Tech B">Tech B</option>
+                        <option value="Tech C">Tech C</option>
+                    </select>
+                `;
+
+
+                container.appendChild(div);
+            });
+        }
+        if (!localStorage.getItem('isAdmin')) {
+    window.location.href = '/login.html';
+}
+
+
+                    async function updateBooking(id, status, technician) {
+                const payload = {};
+
+                if (status) payload.status = status;
+                if (technician) payload.technician = technician;
+
+                await fetch(`/api/bookings/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+    fetchBookings();
+}
+            async function setPrice(id) {
+            const input = document.getElementById(`price-${id}`);
+            const value = input.value.trim();
+            if (!value) return;
+
+            await fetch(`/api/bookings/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ priceRange: value })
+            });
+
+            fetchBookings();
+ }
+
+               
+
+            fetchBookings();
+        
+
+        
+    </script>
+</body>
+</html>
