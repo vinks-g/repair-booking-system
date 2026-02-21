@@ -1,3 +1,4 @@
+const { requireAdmin } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const { sendSms } = require('../services/smsService');
 
@@ -12,7 +13,7 @@ const adminUser = {
 };
 
 // Admin Login
-router.post('/login', async (req, res) => {
+router.post('/test-sms', requireAdmin, async (req, res) => {
     const { username, password } = req.body;
 
     if (username !== adminUser.username) {

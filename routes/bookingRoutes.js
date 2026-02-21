@@ -1,3 +1,4 @@
+const { requireAdmin } = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
@@ -29,7 +30,7 @@ router.post('/', async (req, res) => {
 });
 
 // ✅ GET all bookings
-router.get('/', async (req, res) => {
+router.get('/', requireAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
     res.json(bookings);
@@ -39,7 +40,7 @@ router.get('/', async (req, res) => {
 });
 
 // ✅ UPDATE booking (status/technician) + send status SMS
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const { status, technician, priceRange } = req.body;
 
