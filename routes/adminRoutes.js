@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { sendSms } = require('../services/smsService');
 
 const express = require('express');
@@ -24,7 +25,13 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json({ message: "Login successful" });
+    const token = jwt.sign(
+        { username: adminUser.username, role: "admin" },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.json({ message: "Login successful", token });
 });
     /*router.post('/test-sms', async (req, res) => {
   try {
