@@ -1,40 +1,36 @@
-const rateLimit = require('express-rate-limit');
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 
 const { requireAdmin } = require('../middleware/auth');
 const { sendSms } = require('../services/smsService');
 
-// Single Admin (for now)
-const adminUser = {
-  username: "admin",
-  passwordHash: bcrypt.hashSync("admin123", 10),
-};
-
+// ✅ Rate limit login to prevent brute-force
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // 10 attempts per IP per window
   message: { message: "Too many login attempts. Try again later." }
 });
 
-// Admin Login (sets httpOnly cookie)
-router.post('/login', async (req, res) => {
+// ✅ Admin Login (uses env credentials, sets httpOnly cookie)
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (username !== adminUser.username) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    const adminUsername = process.env.ADMIN_USERNAME;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminUsername || !adminPassword) {
+      return res.status(500).json({ message: "Admin credentials not configured" });
     }
 
-    const validPassword = await bcrypt.compare(password, adminUser.passwordHash);
-    if (!validPassword) {
+    if (username !== adminUsername || password !== adminPassword) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { username: adminUser.username, role: "admin" },
+      { username: adminUsername, role: "admin" },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -44,7 +40,7 @@ router.post('/login', async (req, res) => {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     res.json({ message: "Login successful" });
@@ -53,22 +49,22 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Admin Logout (clears cookie)
-router.post('/login', loginLimiter, async (req, res) => {
+// ✅ Admin Logout (clears cookie)
+router.post('/logout', (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production"
   });
   res.json({ message: "Logged out" });
 });
 
-// Optional: check if logged in (useful for frontend)
+// ✅ Check if logged in
 router.get('/me', requireAdmin, (req, res) => {
   res.json({ authenticated: true, user: req.user });
 });
 
-// Test SMS (Protected)
+// ✅ Test SMS (Protected)
 router.post('/test-sms', requireAdmin, async (req, res) => {
   try {
     const { to } = req.body;
