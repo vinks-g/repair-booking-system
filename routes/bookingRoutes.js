@@ -125,5 +125,31 @@ router.post('/lookup', async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+ // ✅ Admin: basic stats
+router.get('/stats/summary', requireAdmin, async (req, res) => {
+  try {
+    const total = await Booking.countDocuments();
+    const pending = await Booking.countDocuments({ status: "Pending" });
+    const inProgress = await Booking.countDocuments({ status: "In Progress" });
+    const completed = await Booking.countDocuments({ status: "Completed" });
+    const cancelled = await Booking.countDocuments({ status: "Cancelled" });
 
+    // Today (server timezone)
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const today = await Booking.countDocuments({ createdAt: { $gte: startOfDay } });
+
+    res.json({
+      total,
+      today,
+      pending,
+      inProgress,
+      completed,
+      cancelled
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to load stats", error: err.message });
+  }
+});
 module.exports = router;
