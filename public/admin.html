@@ -5,34 +5,29 @@
 </head>
 <body>
   <h2>Vinton Solutions - Repair Bookings - Admin</h2>
+
   <button onclick="logout()">Logout</button>
   <br /><br />
 
   <div id="bookings"></div>
 
   <script>
-    // ✅ JWT token check
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login.html";
-    }
+    async function logout() {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
 
-    function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "/login.html";
+      window.location.href = '/login';
     }
 
     async function fetchBookings() {
       const response = await fetch('/api/bookings', {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
+        credentials: 'include' // ✅ sends cookie automatically
       });
 
-      // If token is missing/expired/invalid
       if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem("token");
-        window.location.href = "/login.html";
+        window.location.href = '/login';
         return;
       }
 
@@ -97,16 +92,13 @@
 
       const response = await fetch(`/api/bookings/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem("token");
-        window.location.href = "/login.html";
+        window.location.href = '/login';
         return;
       }
 
@@ -120,16 +112,13 @@
 
       const response = await fetch(`/api/bookings/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${token}`
-        },
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceRange: value })
       });
 
       if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem("token");
-        window.location.href = "/login.html";
+        window.location.href = '/login';
         return;
       }
 

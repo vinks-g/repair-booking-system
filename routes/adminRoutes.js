@@ -6,13 +6,13 @@ const jwt = require('jsonwebtoken');
 const { requireAdmin } = require('../middleware/auth');
 const { sendSms } = require('../services/smsService');
 
-// ✅ Single Admin (for now)
+// Single Admin (for now)
 const adminUser = {
   username: "admin",
   passwordHash: bcrypt.hashSync("admin123", 10),
 };
 
-// ✅ Admin Login (NO middleware here)
+// Admin Login (sets httpOnly cookie)
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -32,13 +32,36 @@ router.post('/login', async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.json({ message: "Login successful", token });
+    // Store token in secure httpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.json({ message: "Login successful" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// ✅ Test SMS (Protected)
+// Admin Logout (clears cookie)
+router.post('/logout', (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.json({ message: "Logged out" });
+});
+
+// Optional: check if logged in (useful for frontend)
+router.get('/me', requireAdmin, (req, res) => {
+  res.json({ authenticated: true, user: req.user });
+});
+
+// Test SMS (Protected)
 router.post('/test-sms', requireAdmin, async (req, res) => {
   try {
     const { to } = req.body;
