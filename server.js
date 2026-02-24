@@ -1,3 +1,4 @@
+const helmet = require('helmet');
 require('dotenv').config();
 
 const express = require('express');
@@ -14,7 +15,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(helmet());
 // Serve static files (but not auto-index)
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 

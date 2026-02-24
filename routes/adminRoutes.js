@@ -1,3 +1,4 @@
+const rateLimit = require('express-rate-limit');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -11,6 +12,12 @@ const adminUser = {
   username: "admin",
   passwordHash: bcrypt.hashSync("admin123", 10),
 };
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per IP per window
+  message: { message: "Too many login attempts. Try again later." }
+});
 
 // Admin Login (sets httpOnly cookie)
 router.post('/login', async (req, res) => {
@@ -47,7 +54,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Admin Logout (clears cookie)
-router.post('/logout', (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "lax",
