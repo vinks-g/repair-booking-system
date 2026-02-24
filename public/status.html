@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vinton Solutions - Check Repair Status</title>
+</head>
+<body>
+  <h2>Check Your Repair Status</h2>
+
+  <form id="lookupForm">
+    <input type="text" id="ref" placeholder="Enter Reference Code (e.g. A1B2C3)" required />
+    <br /><br />
+    <input type="text" id="phone" placeholder="Enter Phone Number" required />
+    <br /><br />
+    <button type="submit">Check Status</button>
+  </form>
+
+  <br />
+  <div id="result"></div>
+
+  <script>
+    document.getElementById("lookupForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const ref = document.getElementById("ref").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      const response = await fetch("/api/bookings/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ref, phone })
+      });
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
+
+      if (!response.ok) {
+        const error = await response.json();
+        resultDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        return;
+      }
+
+      const data = await response.json();
+
+      resultDiv.innerHTML = `
+        <h3>Repair Details</h3>
+        <p><strong>Reference:</strong> ${data.ref}</p>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Device:</strong> ${data.deviceType}</p>
+        <p><strong>Service:</strong> ${data.serviceType || "N/A"}</p>
+        <p><strong>Status:</strong> ${data.status}</p>
+        <p><strong>Technician:</strong> ${data.technician}</p>
+        <p><strong>Price Range:</strong> ${data.priceRange || "Not set yet"}</p>
+        <p><strong>Pickup Option:</strong> ${data.pickupOption}</p>
+        <p><strong>Last Updated:</strong> ${new Date(data.updatedAt).toLocaleString()}</p>
+      `;
+    });
+  </script>
+</body>
+</html>

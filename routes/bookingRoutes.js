@@ -86,5 +86,44 @@ router.put('/:id', requireAdmin, async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+// ✅ Public: Lookup booking by Ref (last 6 of _id) + phone
+router.post('/lookup', async (req, res) => {
+  try {
+    const { ref, phone } = req.body;
+
+    if (!ref || !phone) {
+      return res.status(400).json({ message: "ref and phone are required" });
+    }
+
+    const normalizedRef = String(ref).trim().toUpperCase();
+    const normalizedPhone = String(phone).trim();
+
+    // Find bookings and match by last 6 chars of _id
+    const bookings = await Booking.find({ phone: normalizedPhone }).sort({ createdAt: -1 });
+
+    const match = bookings.find(b => String(b._id).slice(-6).toUpperCase() === normalizedRef);
+
+    if (!match) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Return only safe fields (no internal stuff)
+    return res.json({
+      ref: String(match._id).slice(-6).toUpperCase(),
+      name: match.name,
+      deviceType: match.deviceType,
+      serviceType: match.serviceType,
+      pickupOption: match.pickupOption,
+      locationNotes: match.locationNotes,
+      priceRange: match.priceRange,
+      status: match.status,
+      technician: match.technician || "Unassigned",
+      createdAt: match.createdAt,
+      updatedAt: match.updatedAt
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 module.exports = router;

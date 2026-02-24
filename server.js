@@ -15,7 +15,17 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
 // Serve static files (but not auto-index)
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
@@ -40,6 +50,10 @@ app.get('/admin', requireAdmin, (req, res) => {
 // Health
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.get('/status', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'status.html'));
 });
 
 // Connect DB
