@@ -2,16 +2,24 @@
 <html>
 <head>
   <title>Vinton Solutions - Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <h2>Vinton Solutions - Repair Bookings - Admin</h2>
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Vinton Solutions</h1>
+      <p>Admin Dashboard</p>
+    </div>
 
-  <button onclick="logout()">Logout</button>
-  <br /><br />
-  <button onclick="exportCSV()">Download CSV</button>
+    <div class="actions">
+      <button onclick="logout()">Logout</button>
+      <button onclick="exportCSV()">Download CSV</button>
+    </div>
 
-  <div id="stats" style="border:1px solid black; padding:10px; margin-bottom:15px;"></div>
-  <div id="bookings"></div>
+    <div id="stats" class="stats-box"></div>
+    <div id="bookings"></div>
+  </div>
 
   <script>
     async function logout() {
@@ -23,35 +31,36 @@
       window.location.href = '/login';
     }
 
-    async function fetchStats() {
-  const response = await fetch('/api/bookings/stats/summary', {
-    credentials: 'include'
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    window.location.href = '/login';
-    return;
-  }
-
-  const stats = await response.json();
-
-  document.getElementById('stats').innerHTML = `
-    <h3>Dashboard Summary</h3>
-    <p><strong>Total Bookings:</strong> ${stats.total}</p>
-    <p><strong>Today:</strong> ${stats.today}</p>
-    <p><strong>Pending:</strong> ${stats.pending}</p>
-    <p><strong>In Progress:</strong> ${stats.inProgress}</p>
-    <p><strong>Completed:</strong> ${stats.completed}</p>
-    <p><strong>Cancelled:</strong> ${stats.cancelled}</p>
-  `;
-}
-
     function exportCSV() {
-  window.open('/api/bookings/export/csv', '_blank');
-}
+      window.open('/api/bookings/export/csv', '_blank');
+    }
+
+    async function fetchStats() {
+      const response = await fetch('/api/bookings/stats/summary', {
+        credentials: 'include'
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const stats = await response.json();
+
+      document.getElementById('stats').innerHTML = `
+        <h3>Dashboard Summary</h3>
+        <p><strong>Total Bookings:</strong> ${stats.total}</p>
+        <p><strong>Today:</strong> ${stats.today}</p>
+        <p><strong>Pending:</strong> ${stats.pending}</p>
+        <p><strong>In Progress:</strong> ${stats.inProgress}</p>
+        <p><strong>Completed:</strong> ${stats.completed}</p>
+        <p><strong>Cancelled:</strong> ${stats.cancelled}</p>
+      `;
+    }
+
     async function fetchBookings() {
       const response = await fetch('/api/bookings', {
-        credentials: 'include' // ✅ sends cookie automatically
+        credentials: 'include'
       });
 
       if (response.status === 401 || response.status === 403) {
@@ -66,9 +75,7 @@
 
       bookings.forEach(booking => {
         const div = document.createElement('div');
-        div.style.border = "1px solid black";
-        div.style.padding = "10px";
-        div.style.marginBottom = "10px";
+        div.className = "card";
 
         div.innerHTML = `
           <p><strong>Name:</strong> ${booking.name}</p>
@@ -78,35 +85,32 @@
           <p><strong>Pickup:</strong> ${booking.pickupOption || "Walk-in"}</p>
           <p><strong>Location Notes:</strong> ${booking.locationNotes || ""}</p>
           <p><strong>Price Range:</strong> ${booking.priceRange || "Not set"}</p>
-
-          <br />
-          <label><strong>Set Price Range:</strong></label>
-          <input type="text" placeholder="e.g. KES 1,500 - 3,000" id="price-${booking._id}" />
-          <button onclick="setPrice('${booking._id}')">Save</button>
-
           <p><strong>Issue:</strong> ${booking.issueDescription}</p>
           <p><strong>Date:</strong> ${new Date(booking.bookingDate).toDateString()}</p>
           <p><strong>Status:</strong> ${booking.status}</p>
           <p><strong>Technician:</strong> ${booking.technician || "Unassigned"}</p>
 
-          <label><strong>Change Status:</strong></label>
-          <select onchange="updateBooking('${booking._id}', this.value, null)">
-            <option value="">Select</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
+          <div class="inline-group" style="margin-top: 12px;">
+            <input type="text" placeholder="e.g. KES 1,500 - 3,000" id="price-${booking._id}" />
+            <button onclick="setPrice('${booking._id}')">Save Price</button>
+          </div>
 
-          <br /><br />
+          <div class="inline-group" style="margin-top: 12px;">
+            <select onchange="updateBooking('${booking._id}', this.value, null)">
+              <option value="">Change Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
 
-          <label><strong>Assign Technician:</strong></label>
-          <select onchange="updateBooking('${booking._id}', null, this.value)">
-            <option value="">Select</option>
-            <option value="Tech A">Tech A</option>
-            <option value="Tech B">Tech B</option>
-            <option value="Tech C">Tech C</option>
-          </select>
+            <select onchange="updateBooking('${booking._id}', null, this.value)">
+              <option value="">Assign Technician</option>
+              <option value="Tech A">Tech A</option>
+              <option value="Tech B">Tech B</option>
+              <option value="Tech C">Tech C</option>
+            </select>
+          </div>
         `;
 
         container.appendChild(div);
@@ -130,8 +134,8 @@
         return;
       }
 
-      fetchStats();
       fetchBookings();
+      fetchStats();
     }
 
     async function setPrice(id) {
@@ -151,11 +155,10 @@
         return;
       }
 
-      fetchStats();
       fetchBookings();
+      fetchStats();
     }
 
-    // Load on start
     fetchStats();
     fetchBookings();
   </script>

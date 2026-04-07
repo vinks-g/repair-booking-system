@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
 });
 
 // ✅ GET all bookings
-router.get('/', requireAdmin, async (req, res) => {
+router.get('/', requireAuth, requireAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
     res.json(bookings);
@@ -41,7 +41,7 @@ router.get('/', requireAdmin, async (req, res) => {
 });
 
 // ✅ UPDATE booking (status/technician) + send status SMS
-router.put('/:id', requireAdmin, async (req, res) => {
+router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { status, technician, priceRange } = req.body;
 
@@ -137,7 +137,7 @@ router.post('/lookup', async (req, res) => {
   }
 });
  // ✅ Admin: basic stats
-router.get('/stats/summary', requireAdmin, async (req, res) => {
+router.get('/stats/summary', requireAuth, requireAdmin, async (req, res) => {
   try {
     const total = await Booking.countDocuments();
     const pending = await Booking.countDocuments({ status: "Pending" });
@@ -164,8 +164,8 @@ router.get('/stats/summary', requireAdmin, async (req, res) => {
   }
 });
 
-// ✅ Export bookings to CSV
-router.get('/export/csv', requireAdmin, async (req, res) => {
+//  Export bookings to CSV
+router.get('/export/csv',requireAuth, requireAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
 
@@ -185,7 +185,7 @@ router.get('/export/csv', requireAdmin, async (req, res) => {
     res.status(500).json({ message: "Export failed", error: err.message });
   }
 });
-// ✅ Technician/Admin: get bookings assigned to logged-in technician
+// Technician/Admin: get bookings assigned to logged-in technician
 router.get('/technician/my-jobs', requireAuth, requireTechnicianOrAdmin, async (req, res) => {
   try {
     if (req.user.role !== "technician") {
@@ -198,19 +198,18 @@ router.get('/technician/my-jobs', requireAuth, requireTechnicianOrAdmin, async (
     res.status(500).json({ message: "Failed to load technician jobs", error: err.message });
   }
 });
-
-// ✅ Technician: update only their own assigned job status
+// Technician/Admin: can update their own status
 router.put('/technician/update-status/:id', requireAuth, requireTechnicianOrAdmin, async (req, res) => {
   try {
     if (req.user.role !== "technician") {
       return res.status(403).json({ message: "Technician access only" });
     }
 
-    const { status } = req.body;
+    const status = String(req.body.status || "").trim();
 
     const allowedStatuses = ["In Progress", "Completed"];
     if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
+      return res.status(400).json({ message: `Invalid status: ${status}` });
     }
 
     const booking = await Booking.findById(req.params.id);
@@ -218,34 +217,37 @@ router.put('/technician/update-status/:id', requireAuth, requireTechnicianOrAdmi
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // Technician can only update their own assigned jobs
-    if (booking.technician !== req.user.name) {
+    if (String(booking.technician || "").trim() !== String(req.user.name || "").trim()) {
       return res.status(403).json({ message: "You can only update your own assigned jobs" });
     }
 
     const oldStatus = booking.status;
+
+    // If already set to this status, just return success
+    if (oldStatus === status) {
+      return res.json({ message: "Status already set", booking });
+    }
+
     booking.status = status;
     await booking.save();
 
-    // Optional SMS to customer
-    if (status !== oldStatus) {
-      let smsMsg = "";
+    // Optional SMS
+    let smsMsg = "";
+    if (status === "In Progress") {
+      smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is now in progress. Technician: ${booking.technician}. - Vinton Solutions`;
+    } else if (status === "Completed") {
+      smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is completed ✅. You can now come for pickup. Thank you! - Vinton Solutions`;
+    }
 
-      if (status === "In Progress") {
-        smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is now in progress. Technician: ${booking.technician}. - Vinton Solutions`;
-      } else if (status === "Completed") {
-        smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is completed ✅. You can now come for pickup. Thank you! - Vinton Solutions`;
-      }
-
-      if (smsMsg) {
-        sendSms(booking.phone, smsMsg).catch(err => {
-          console.log("Technician status SMS failed:", err.message);
-        });
-      }
+    if (smsMsg) {
+      sendSms(booking.phone, smsMsg).catch(err => {
+        console.log("Technician status SMS failed:", err.message);
+      });
     }
 
     res.json({ message: "Status updated", booking });
   } catch (err) {
+    console.log("Technician update error:", err);
     res.status(500).json({ message: "Failed to update job status", error: err.message });
   }
 });

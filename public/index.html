@@ -1,73 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vinton Solutions-Repair Booking</title>
+  <title>Vinton Solutions - Book a Repair</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <h2>Vinton Solutions-Book a Repair Service</h2>
+  <div class="container">
+    <div class="header">
+      <h1>Vinton Solutions</h1>
+      <p>Book your repair service quickly and easily.</p>
+    </div>
+
+    <h2>Repair Booking Form</h2>
 
     <form id="bookingForm">
-        <input type="text" id="name" placeholder="Your Name" required /><br /><br />
-        <input type="text" id="phone" placeholder="Phone Number" required /><br /><br />
-        <select id="serviceType" required>
+      <label for="name">Full Name</label>
+      <input type="text" id="name" placeholder="Enter your full name" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="e.g. 0712345678" required />
+
+      <label for="serviceType">Service Type</label>
+      <select id="serviceType" required>
         <option value="">Select Service Type</option>
         <option value="Phone Repair">Phone Repair</option>
         <option value="Laptop Repair">Laptop Repair</option>
         <option value="TV Repair">TV Repair</option>
         <option value="Game Console Repair">Game Console Repair</option>
         <option value="Other">Other</option>
-        </select>
-        <br /><br />
+      </select>
 
-        <select id="pickupOption">
+      <label for="deviceType">Device Type</label>
+      <input type="text" id="deviceType" placeholder="e.g. iPhone 13, HP Laptop, Samsung TV" required />
+
+      <label for="issueDescription">Issue Description</label>
+      <textarea id="issueDescription" placeholder="Describe the problem" required></textarea>
+
+      <label for="pickupOption">Pickup Option</label>
+      <select id="pickupOption">
         <option value="Walk-in">Walk-in</option>
         <option value="Pickup & Delivery">Pickup & Delivery</option>
-        </select>
-        <br /><br />
+      </select>
 
-        <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
-        <br /><br />
+      <label for="locationNotes">Location Notes</label>
+      <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
 
-        <input type="text" id="deviceType" placeholder="Device Type" required /><br /><br />
-        <textarea id="issueDescription" placeholder="Describe the issue" required></textarea><br /><br />
-        <input type="date" id="bookingDate" required /><br /><br />
-        <button type="submit">Book Now</button>
+      <label for="bookingDate">Preferred Booking Date</label>
+      <input type="date" id="bookingDate" required />
+
+      <button type="submit">Submit Booking</button>
     </form>
 
-    <p id="message"></p>
+    <p id="message" class="message"></p>
+  </div>
 
-    <script>
-        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+  <script>
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-            const bookingData = {
-                serviceType: document.getElementById('serviceType').value,
-                pickupOption: document.getElementById('pickupOption').value,
-                locationNotes: document.getElementById('locationNotes').value,
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                deviceType: document.getElementById('deviceType').value,
-                issueDescription: document.getElementById('issueDescription').value,
-                bookingDate: document.getElementById('bookingDate').value
-            };
+      const bookingData = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        serviceType: document.getElementById('serviceType').value,
+        deviceType: document.getElementById('deviceType').value,
+        issueDescription: document.getElementById('issueDescription').value,
+        pickupOption: document.getElementById('pickupOption').value,
+        locationNotes: document.getElementById('locationNotes').value,
+        bookingDate: document.getElementById('bookingDate').value
+      };
 
-            const response = await fetch('/api/bookings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(bookingData)
-            });
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      });
 
-            const data = await response.json();
+      const data = await response.json();
 
-            if (response.ok) {
-                document.getElementById('message').innerText = "Booking successful!";
-                document.getElementById('bookingForm').reset();
-            } else {
-                document.getElementById('message').innerText = "Error: " + data.error;
-            }
-        });
-    </script>
+      if (response.ok) {
+        document.getElementById('message').innerText = "Booking submitted successfully!";
+        document.getElementById('message').style.color = "green";
+        document.getElementById('bookingForm').reset();
+      } else {
+        document.getElementById('message').innerText = "Error: " + (data.error || data.message || "Something went wrong");
+        document.getElementById('message').style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>

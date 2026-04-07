@@ -2,20 +2,31 @@
 <html>
 <head>
   <title>Vinton Solutions - Check Repair Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <h2>Check Your Repair Status</h2>
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Vinton Solutions</h1>
+      <p>Track your repair progress easily.</p>
+    </div>
 
-  <form id="lookupForm">
-    <input type="text" id="ref" placeholder="Enter Reference Code (e.g. A1B2C3)" required />
-    <br /><br />
-    <input type="text" id="phone" placeholder="Enter Phone Number" required />
-    <br /><br />
-    <button type="submit">Check Status</button>
-  </form>
+    <h2>Check Your Repair Status</h2>
 
-  <br />
-  <div id="result"></div>
+    <form id="lookupForm">
+      <label for="ref">Reference Code</label>
+      <input type="text" id="ref" placeholder="Enter reference code (e.g. A1B2C3)" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="Enter phone number" required />
+
+      <button type="submit">Check Status</button>
+    </form>
+
+    <div id="result" class="stats-box" style="display:none;"></div>
+    <p id="message" class="message"></p>
+  </div>
 
   <script>
     document.getElementById("lookupForm").addEventListener("submit", async function(e) {
@@ -31,16 +42,22 @@
       });
 
       const resultDiv = document.getElementById("result");
+      const messageEl = document.getElementById("message");
+
+      resultDiv.style.display = "none";
       resultDiv.innerHTML = "";
+      messageEl.innerText = "";
 
       if (!response.ok) {
         const error = await response.json();
-        resultDiv.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        messageEl.innerText = error.message || "Booking not found";
+        messageEl.style.color = "red";
         return;
       }
 
       const data = await response.json();
 
+      resultDiv.style.display = "block";
       resultDiv.innerHTML = `
         <h3>Repair Details</h3>
         <p><strong>Reference:</strong> ${data.ref}</p>

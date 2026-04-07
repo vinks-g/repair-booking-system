@@ -2,14 +2,23 @@
 <html>
 <head>
   <title>Vinton Solutions - Technician Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <h2>Vinton Solutions - Technician Dashboard</h2>
-  <button onclick="logout()">Logout</button>
-  <br /><br />
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Vinton Solutions</h1>
+      <p>Technician Dashboard</p>
+    </div>
 
-  <div id="techInfo" style="border:1px solid black; padding:10px; margin-bottom:15px;"></div>
-  <div id="jobs"></div>
+    <div class="actions">
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <div id="techInfo" class="stats-box"></div>
+    <div id="jobs"></div>
+  </div>
 
   <script>
     async function logout() {
@@ -17,7 +26,6 @@
         method: 'POST',
         credentials: 'include'
       });
-
       window.location.href = '/login';
     }
 
@@ -52,22 +60,20 @@
       const response = await fetch(`/api/bookings/technician/update-status/${id}`, {
         method: 'PUT',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
 
+      const data = await response.json();
+
       if (response.status === 401 || response.status === 403) {
-        alert("You are not allowed to update this job.");
+        alert(data.message || "You are not allowed to update this job.");
         window.location.href = '/login';
         return;
       }
 
-      const data = await response.json();
-
       if (!response.ok) {
-        alert(data.message || "Failed to update status");
+        alert(`Failed to update status: ${data.message || "Unknown error"}`);
         return;
       }
 
@@ -95,9 +101,7 @@
 
       jobs.forEach(job => {
         const div = document.createElement('div');
-        div.style.border = "1px solid black";
-        div.style.padding = "10px";
-        div.style.marginBottom = "10px";
+        div.className = 'card';
 
         div.innerHTML = `
           <p><strong>Ref:</strong> ${String(job._id).slice(-6).toUpperCase()}</p>
@@ -112,12 +116,13 @@
           <p><strong>Location Notes:</strong> ${job.locationNotes || ""}</p>
           <p><strong>Date:</strong> ${new Date(job.bookingDate).toDateString()}</p>
 
-          <label><strong>Update Status:</strong></label>
-          <select onchange="updateJobStatus('${job._id}', this.value)">
-            <option value="">Select</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <div class="inline-group" style="margin-top: 12px;">
+            <select onchange="updateJobStatus('${job._id}', this.value)">
+              <option value="">Update Status</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
         `;
 
         container.appendChild(div);
@@ -126,9 +131,7 @@
 
     async function init() {
       const user = await fetchMe();
-      if (user) {
-        fetchJobs();
-      }
+      if (user) fetchJobs();
     }
 
     init();

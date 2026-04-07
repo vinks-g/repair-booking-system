@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 
-const { requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { sendSms } = require('../services/smsService');
 
 // Rate limit login
@@ -115,7 +115,7 @@ router.get('/me', (req, res) => {
 });
 
 // Test SMS (admin only)
-router.post('/test-sms', requireAdmin, async (req, res) => {
+router.post('/test-sms', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { to } = req.body;
     if (!to) {
