@@ -8,6 +8,7 @@
 
   <button onclick="logout()">Logout</button>
   <br /><br />
+  <button onclick="exportCSV()">Download CSV</button>
 
   <div id="stats" style="border:1px solid black; padding:10px; margin-bottom:15px;"></div>
   <div id="bookings"></div>
@@ -43,6 +44,10 @@
     <p><strong>Completed:</strong> ${stats.completed}</p>
     <p><strong>Cancelled:</strong> ${stats.cancelled}</p>
   `;
+}
+
+    function exportCSV() {
+  window.open('/api/bookings/export/csv', '_blank');
 }
     async function fetchBookings() {
       const response = await fetch('/api/bookings', {

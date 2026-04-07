@@ -60,6 +60,8 @@ router.put('/:id', requireAdmin, async (req, res) => {
       { new: true }
     );
     // ✅ Send SMS when price range is updated
+  
+    // ✅ Send SMS when price range is updated
     if (priceRange && priceRange !== existingBooking.priceRange) {
       const quoteMsg = `Hi ${updatedBooking.name}, your repair estimate for ${updatedBooking.deviceType} is ${updatedBooking.priceRange}. We’ll proceed after your confirmation. - Vinton Solutions`;
 
@@ -158,6 +160,28 @@ router.get('/stats/summary', requireAdmin, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Failed to load stats", error: err.message });
+  }
+});
+
+// ✅ Export bookings to CSV
+router.get('/export/csv', requireAdmin, async (req, res) => {
+  try {
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+
+    let csv = "Ref,Name,Phone,Device,Service,Status,Technician,Price,Date\n";
+
+    bookings.forEach(b => {
+      const ref = String(b._id).slice(-6).toUpperCase();
+
+      csv += `${ref},${b.name},${b.phone},${b.deviceType},${b.serviceType || ""},${b.status},${b.technician || ""},${b.priceRange || ""},${new Date(b.createdAt).toLocaleString()}\n`;
+    });
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('bookings.csv');
+    res.send(csv);
+
+  } catch (err) {
+    res.status(500).json({ message: "Export failed", error: err.message });
   }
 });
 module.exports = router;
