@@ -33,9 +33,14 @@
       const data = await response.json();
 
       if (response.ok) {
-        // Cookie is now stored automatically by the browser
-        window.location.href = '/admin';
-      } else {
+  if (data.role === "admin") {
+    window.location.href = '/admin';
+  } else if (data.role === "technician") {
+    window.location.href = '/technician';
+  } else {
+    document.getElementById('message').innerText = "Unknown user role";
+  }
+} else {
         document.getElementById('message').innerText = data.message || "Login failed";
       }
     });

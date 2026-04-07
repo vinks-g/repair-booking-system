@@ -1,20 +1,22 @@
-const helmet = require('helmet');
 require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 
-const { requireAdmin } = require('./middleware/auth');
+const { requireAuth, requireAdmin } = require('./middleware/auth');
+const { requireTechnician } = require('./middleware/roles');
+
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-const app = express();
+const app = express(); // ✅ app must be created before app.use/app.get
 
-// Middleware
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -27,14 +29,12 @@ app.use(
     },
   })
 );
-// Serve static files (but not auto-index)
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
-// API Routes
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Public pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -43,21 +43,22 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Protected admin page (now works because requireAdmin can read cookie)
-app.get('/admin', requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// Health
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
 app.get('/status', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'status.html'));
 });
 
-// Connect DB
+app.get('/admin', requireAuth, requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/technician', requireAuth, requireTechnician, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'technician.html'));
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB Connected'))

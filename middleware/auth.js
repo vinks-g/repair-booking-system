@@ -15,24 +15,16 @@ function wantsHtml(req) {
   return accept.includes("text/html");
 }
 
-function requireAdmin(req, res, next) {
+function requireAuth(req, res, next) {
   const token = getTokenFromRequest(req);
 
   if (!token) {
-    // If user is visiting in a browser, redirect to login
     if (wantsHtml(req)) return res.redirect('/login');
-    // If it's API (Postman/fetch), return JSON error
     return res.status(401).json({ message: "Not authenticated" });
   }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (payload.role !== "admin") {
-      if (wantsHtml(req)) return res.redirect('/login');
-      return res.status(403).json({ message: "Forbidden" });
-    }
-
     req.user = payload;
     next();
   } catch (err) {
@@ -41,4 +33,21 @@ function requireAdmin(req, res, next) {
   }
 }
 
-module.exports = { requireAdmin };
+function requireAdmin(req, res, next) {
+  if (!req.user) {
+    if (wantsHtml(req)) return res.redirect('/login');
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  if (req.user.role !== "admin") {
+    if (wantsHtml(req)) return res.redirect('/login');
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  next();
+}
+
+module.exports = {
+  requireAuth,
+  requireAdmin
+};

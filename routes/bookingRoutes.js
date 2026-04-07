@@ -1,4 +1,5 @@
-const { requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireTechnicianOrAdmin } = require('../middleware/roles');
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
@@ -182,6 +183,19 @@ router.get('/export/csv', requireAdmin, async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: "Export failed", error: err.message });
+  }
+});
+// ✅ Technician/Admin: get bookings assigned to logged-in technician
+router.get('/technician/my-jobs', requireAuth, requireTechnicianOrAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== "technician") {
+      return res.status(403).json({ message: "Technician access only" });
+    }
+
+    const jobs = await Booking.find({ technician: req.user.name }).sort({ createdAt: -1 });
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to load technician jobs", error: err.message });
   }
 });
 module.exports = router;
