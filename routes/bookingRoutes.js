@@ -198,4 +198,55 @@ router.get('/technician/my-jobs', requireAuth, requireTechnicianOrAdmin, async (
     res.status(500).json({ message: "Failed to load technician jobs", error: err.message });
   }
 });
+
+// ✅ Technician: update only their own assigned job status
+router.put('/technician/update-status/:id', requireAuth, requireTechnicianOrAdmin, async (req, res) => {
+  try {
+    if (req.user.role !== "technician") {
+      return res.status(403).json({ message: "Technician access only" });
+    }
+
+    const { status } = req.body;
+
+    const allowedStatuses = ["In Progress", "Completed"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    // Technician can only update their own assigned jobs
+    if (booking.technician !== req.user.name) {
+      return res.status(403).json({ message: "You can only update your own assigned jobs" });
+    }
+
+    const oldStatus = booking.status;
+    booking.status = status;
+    await booking.save();
+
+    // Optional SMS to customer
+    if (status !== oldStatus) {
+      let smsMsg = "";
+
+      if (status === "In Progress") {
+        smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is now in progress. Technician: ${booking.technician}. - Vinton Solutions`;
+      } else if (status === "Completed") {
+        smsMsg = `Hi ${booking.name}, your ${booking.deviceType} repair is completed ✅. You can now come for pickup. Thank you! - Vinton Solutions`;
+      }
+
+      if (smsMsg) {
+        sendSms(booking.phone, smsMsg).catch(err => {
+          console.log("Technician status SMS failed:", err.message);
+        });
+      }
+    }
+
+    res.json({ message: "Status updated", booking });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update job status", error: err.message });
+  }
+});
 module.exports = router;

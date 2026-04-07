@@ -46,6 +46,34 @@
       return data.user;
     }
 
+    async function updateJobStatus(id, newStatus) {
+      if (!newStatus) return;
+
+      const response = await fetch(`/api/bookings/technician/update-status/${id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        alert("You are not allowed to update this job.");
+        window.location.href = '/login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to update status");
+        return;
+      }
+
+      fetchJobs();
+    }
+
     async function fetchJobs() {
       const response = await fetch('/api/bookings/technician/my-jobs', {
         credentials: 'include'
@@ -83,6 +111,13 @@
           <p><strong>Pickup:</strong> ${job.pickupOption || "Walk-in"}</p>
           <p><strong>Location Notes:</strong> ${job.locationNotes || ""}</p>
           <p><strong>Date:</strong> ${new Date(job.bookingDate).toDateString()}</p>
+
+          <label><strong>Update Status:</strong></label>
+          <select onchange="updateJobStatus('${job._id}', this.value)">
+            <option value="">Select</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
         `;
 
         container.appendChild(div);
