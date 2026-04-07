@@ -59,6 +59,14 @@ router.put('/:id', requireAdmin, async (req, res) => {
       updatePayload,
       { new: true }
     );
+    // ✅ Send SMS when price range is updated
+    if (priceRange && priceRange !== existingBooking.priceRange) {
+      const quoteMsg = `Hi ${updatedBooking.name}, your repair estimate for ${updatedBooking.deviceType} is ${updatedBooking.priceRange}. We’ll proceed after your confirmation. - Vinton Solutions`;
+
+      sendSms(updatedBooking.phone, quoteMsg).catch(err => {
+        console.log("Quote SMS failed:", err.message);
+      });
+    }
 
     const notifyStatuses = new Set(["In Progress", "Completed", "Cancelled"]);
 
