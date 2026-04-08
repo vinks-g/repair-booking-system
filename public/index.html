@@ -1,59 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Vinton Solutions - Book a Repair</title>
+  <title>Vinton Solutions - Electronics Repair Services</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>Vinton Solutions</h1>
-      <p>Book your repair service quickly and easily.</p>
+    <div class="dashboard-header">
+      <img src="/images/logo.jpeg" class="logo" />
+      <div class="brand-title">Vinton Solutions</div>
+      <div class="brand-sub">Reliable Electronics Repair Services</div>
     </div>
 
-    <h2>Repair Booking Form</h2>
+    <div class="stats-box hero">
+      <h2>Fast, Reliable Repairs for Phones, Laptops, TVs & More</h2>
+      <p class="muted">
+        Professional diagnostics, trusted repairs, and quick support for your electronics.
+      </p>
 
-    <form id="bookingForm">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" placeholder="Enter your full name" required />
+      <div class="cta-buttons">
+        <button onclick="document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' })">
+            Book Your Repair Now
+        </button>
+        <button onclick="window.location.href='/status'">
+            Check Repair Status
+        </button>
+      </div>
+    </div>
 
-      <label for="phone">Phone Number</label>
-      <input type="text" id="phone" placeholder="e.g. 0712345678" required />
 
-      <label for="serviceType">Service Type</label>
-      <select id="serviceType" required>
-        <option value="">Select Service Type</option>
-        <option value="Phone Repair">Phone Repair</option>
-        <option value="Laptop Repair">Laptop Repair</option>
-        <option value="TV Repair">TV Repair</option>
-        <option value="Game Console Repair">Game Console Repair</option>
-        <option value="Other">Other</option>
-      </select>
+    <div class="grid-3">
 
-      <label for="deviceType">Device Type</label>
-      <input type="text" id="deviceType" placeholder="e.g. iPhone 13, HP Laptop, Samsung TV" required />
+        <div class="card">
+          <h2 class="section-title">
+          <i data-lucide="wrench" class="icon"></i>
+          Our Services
+          </h2>
 
-      <label for="issueDescription">Issue Description</label>
-      <textarea id="issueDescription" placeholder="Describe the problem" required></textarea>
+          <p><i data-lucide="smartphone" class="icon"></i> Phone Repair – screens, batteries, charging ports</p>
+          <p><i data-lucide="laptop" class="icon"></i> Laptop Repair – software, hardware, upgrades</p>
+          <p><i data-lucide="tv" class="icon"></i> TV Repair – backlight, boards, display issues</p>
+          <p><i data-lucide="speaker" class="icon"></i> Sound Systems & Home Theatre Repairs</p>
+          <p><i data-lucide="truck" class="icon"></i> Pickup & Delivery Available</p>
+        </div>
 
-      <label for="pickupOption">Pickup Option</label>
-      <select id="pickupOption">
-        <option value="Walk-in">Walk-in</option>
-        <option value="Pickup & Delivery">Pickup & Delivery</option>
-      </select>
+        <div class="card">
+              <h2 class="section-title">
+                <i data-lucide="shield-check" class="icon"></i>
+                Why Choose Vinton Solutions
+              </h2>
 
-      <label for="locationNotes">Location Notes</label>
-      <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
+              <p><i data-lucide="check-circle" class="icon"></i> Fast turnaround time</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Professional diagnostics</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Affordable and transparent pricing</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Trusted local repair service</p>
+        </div>
 
-      <label for="bookingDate">Preferred Booking Date</label>
-      <input type="date" id="bookingDate" required />
+        <div class="card">
+          <h2 class="section-title">
+            <i data-lucide="phone-call" class="icon"></i>
+            Contact Us
+          </h2>
 
-      <button type="submit">Submit Booking</button>
-    </form>
+          <p><strong><i data-lucide="phone" class="icon"></i> Phone:</strong> +254 114360910</p>
+          <p><strong><i data-lucide="map-pin" class="icon"></i> Location:</strong> Kerugoya (Near Machere Building)</p>
+          <p class="muted">Call or WhatsApp us for quick assistance.</p>
+        </div>
+    </div>
 
-    <p id="message" class="message"></p>
+    <div id="booking-section" class="card">
+      <h2 class="section-title">
+        <i data-lucide="clipboard-list" class="icon"></i>
+        Repair Booking Form
+      </h2>
+
+      <form id="bookingForm">
+        <label for="name">
+          <i data-lucide="user" class="icon"></i> Full Name
+        </label>
+        <input type="text" id="name" placeholder="Enter your full name" required />
+
+        <label for="phone">
+          <i data-lucide="phone" class="icon"></i> Phone Number
+        </label>
+        <input type="text" id="phone" placeholder="e.g. 0712345678" required />
+
+        <label for="serviceType">
+          <i data-lucide="wrench" class="icon"></i> Service Type
+        </label>
+        <select id="serviceType" required>
+          <option value="">Select Service Type</option>
+          <option value="Phone Repair">Phone Repair</option>
+          <option value="Laptop Repair">Laptop Repair</option>
+          <option value="TV Repair">TV Repair</option>
+          <option value="Game Console Repair">Game Console Repair</option>
+          <option value="Other">Other</option>
+        </select>
+
+
+    
+
+        <label for="deviceType">
+          <i data-lucide="smartphone" class="icon"></i> Device Type
+        </label>
+        <input type="text" id="deviceType" placeholder="e.g. iPhone 13, HP Laptop, Samsung TV" required />
+
+        <label for="issueDescription">
+          <i data-lucide="alert-circle" class="icon"></i> Issue Description
+        </label>
+        <textarea id="issueDescription" placeholder="Describe the problem" required></textarea>
+
+        <label for="pickupOption">
+          <i data-lucide="truck" class="icon"></i> Pickup Option
+        </label>
+        <select id="pickupOption">
+          <option value="Walk-in">Walk-in</option>
+          <option value="Pickup & Delivery">Pickup & Delivery</option>
+        </select>
+
+        <label for="locationNotes">
+          <i data-lucide="map-pin" class="icon"></i> Location Notes
+        </label>
+        <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
+
+        <label for="bookingDate">
+          <i data-lucide="calendar" class="icon"></i> Preferred Booking Date
+        </label>
+        <input type="date" id="bookingDate" required />
+
+        <button type="submit">Submit Booking</button>
+      </form>
+
+      <p id="message" class="message"></p>
+    </div>
   </div>
+
+   <div class="footer">
+  <div class="footer-links">
+    <a href="/">Home</a>
+    <a href="/status">Track Repair</a>
+    <a href="/login">Admin Login</a>
+  </div>
+  <p>&copy; 2026 Vinton Solutions. All rights reserved.</p>
+</div>
 
   <script>
     document.getElementById('bookingForm').addEventListener('submit', async function(e) {
@@ -87,6 +178,13 @@
         document.getElementById('message').style.color = "red";
       }
     });
+
+    window.onload = function () {
+      lucide.createIcons();
+    };
+
+  
   </script>
+
 </body>
 </html>

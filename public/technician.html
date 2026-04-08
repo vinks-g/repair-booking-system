@@ -4,16 +4,17 @@
   <title>Vinton Solutions - Technician Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="dashboard-header">
-      <h1>Vinton Solutions</h1>
-      <p>Technician Dashboard</p>
-    </div>
+  <img src="/images/logo.jpeg" class="logo" />
+<div class="brand-title">Vinton Solutions</div>
+<div class="brand-sub">Reliable Electronics Repair Services</div>
+      <p><i data-lucide="wrench" class="icon"></i> Technician Dashboard</p>
+    
 
     <div class="actions">
-      <button onclick="logout()">Logout</button>
+      <button onclick="logout()"><i data-lucide="log-out" class="icon"></i> Logout</button>
     </div>
 
     <div id="techInfo" class="stats-box"></div>
@@ -47,7 +48,7 @@
       }
 
       document.getElementById('techInfo').innerHTML = `
-        <h3>Welcome, ${data.user.name}</h3>
+        <h3><i data-lucide="user-cog" class="icon"></i> Welcome, ${data.user.name}</h3>
         <p><strong>Role:</strong> ${data.user.role}</p>
       `;
 
@@ -110,7 +111,16 @@
           <p><strong>Device:</strong> ${job.deviceType}</p>
           <p><strong>Service:</strong> ${job.serviceType || ""}</p>
           <p><strong>Issue:</strong> ${job.issueDescription}</p>
-          <p><strong>Status:</strong> ${job.status}</p>
+          <p><strong>Status:</strong> 
+            <span class="status ${
+                job.status === "Pending" ? "status-pending" :
+                job.status === "In Progress" ? "status-progress" :
+                job.status === "Completed" ? "status-completed" :
+                "status-cancelled"
+            }">
+                ${job.status}
+            </span>
+            </p>
           <p><strong>Price Range:</strong> ${job.priceRange || "Not set"}</p>
           <p><strong>Pickup:</strong> ${job.pickupOption || "Walk-in"}</p>
           <p><strong>Location Notes:</strong> ${job.locationNotes || ""}</p>
@@ -127,6 +137,8 @@
 
         container.appendChild(div);
       });
+
+      lucide.createIcons();
     }
 
     async function init() {
@@ -136,5 +148,13 @@
 
     init();
   </script>
+
+  <script>
+  window.onload = function () {
+    lucide.createIcons();
+  };
+  </script>
+
+
 </body>
 </html>

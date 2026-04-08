@@ -4,17 +4,19 @@
   <title>Vinton Solutions - Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="dashboard-header">
-      <h1>Vinton Solutions</h1>
-      <p>Admin Dashboard</p>
+  <img src="/images/logo.jpeg" class="logo" />
+<div class="brand-title">Vinton Solutions</div>
+<div class="brand-sub">Reliable Electronics Repair Services</div>
+
+      <p><i data-lucide="layout-dashboard" class="icon"></i> Admin Dashboard</p>
     </div>
 
     <div class="actions">
-      <button onclick="logout()">Logout</button>
-      <button onclick="exportCSV()">Download CSV</button>
+      <button onclick="logout()"><i data-lucide="log-out" class="icon"></i> Logout</button>
+      <button onclick="exportCSV()"><i data-lucide="download" class="icon"></i> Download CSV</button>
     </div>
 
     <div id="stats" class="stats-box"></div>
@@ -48,7 +50,7 @@
       const stats = await response.json();
 
       document.getElementById('stats').innerHTML = `
-        <h3>Dashboard Summary</h3>
+        <h3><i data-lucide="bar-chart-3" class="icon"></i> Dashboard Summary</h3>
         <p><strong>Total Bookings:</strong> ${stats.total}</p>
         <p><strong>Today:</strong> ${stats.today}</p>
         <p><strong>Pending:</strong> ${stats.pending}</p>
@@ -56,6 +58,7 @@
         <p><strong>Completed:</strong> ${stats.completed}</p>
         <p><strong>Cancelled:</strong> ${stats.cancelled}</p>
       `;
+      lucide.createIcons();
     }
 
     async function fetchBookings() {
@@ -87,7 +90,16 @@
           <p><strong>Price Range:</strong> ${booking.priceRange || "Not set"}</p>
           <p><strong>Issue:</strong> ${booking.issueDescription}</p>
           <p><strong>Date:</strong> ${new Date(booking.bookingDate).toDateString()}</p>
-          <p><strong>Status:</strong> ${booking.status}</p>
+          <p><strong>Status:</strong> 
+            <span class="status ${
+              booking.status === "Pending" ? "status-pending" :
+              booking.status === "In Progress" ? "status-progress" :
+              booking.status === "Completed" ? "status-completed" :
+              "status-cancelled"
+            }">
+              ${booking.status}
+            </span>
+          </p>
           <p><strong>Technician:</strong> ${booking.technician || "Unassigned"}</p>
 
           <div class="inline-group" style="margin-top: 12px;">
@@ -115,6 +127,7 @@
 
         container.appendChild(div);
       });
+      lucide.createIcons();
     }
 
     async function updateBooking(id, status, technician) {
@@ -162,5 +175,12 @@
     fetchStats();
     fetchBookings();
   </script>
+
+  <script>
+  window.onload = function () {
+    lucide.createIcons();
+  };
+</script>
+
 </body>
 </html>

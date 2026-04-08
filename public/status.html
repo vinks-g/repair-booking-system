@@ -6,9 +6,9 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <div class="container">
-    <div class="dashboard-header">
-      <h1>Vinton Solutions</h1>
+  <img src="/images/logo.jpeg" class="logo" />
+<div class="brand-title">Vinton Solutions</div>
+<div class="brand-sub">Reliable Electronics Repair Services</div>
       <p>Track your repair progress easily.</p>
     </div>
 
@@ -64,7 +64,16 @@
         <p><strong>Name:</strong> ${data.name}</p>
         <p><strong>Device:</strong> ${data.deviceType}</p>
         <p><strong>Service:</strong> ${data.serviceType || "N/A"}</p>
-        <p><strong>Status:</strong> ${data.status}</p>
+        <p><strong>Status:</strong> 
+          <span class="status ${
+            data.status === "Pending" ? "status-pending" :
+            data.status === "In Progress" ? "status-progress" :
+            data.status === "Completed" ? "status-completed" :
+            "status-cancelled"
+          }">
+            ${data.status}
+          </span>
+        </p>
         <p><strong>Technician:</strong> ${data.technician}</p>
         <p><strong>Price Range:</strong> ${data.priceRange || "Not set yet"}</p>
         <p><strong>Pickup Option:</strong> ${data.pickupOption}</p>

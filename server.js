@@ -23,7 +23,11 @@ app.use(
       useDefaults: true,
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        "script-src": ["'self'", "'unsafe-inline'"],
+        "script-src": [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net"
+        ],
         "script-src-attr": ["'unsafe-inline'"]
       },
     },
