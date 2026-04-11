@@ -45,8 +45,38 @@ const bookingSchema = new mongoose.Schema({
     technician: {
     type: String,
     default: "Unassigned"
-}
+    },
 
+
+    paymentStatus: {
+        type: String,
+        default: "Unpaid"
+    },
+    paymentAmount: {
+        type: Number,
+        default: 0
+    },
+
+    paymentType: {
+        type: String,
+        default: "Deposit"
+    },
+
+    checkoutRequestId: {
+        type: String,
+        default: ""
+    },
+    mpesaReceiptNumber: {
+        type: String,
+        default: ""
+    },
+
+    paymentRequestedAmount: {
+        type: Number,
+        default: 0
+    },
+
+     
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

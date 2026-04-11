@@ -58,12 +58,19 @@
       const data = await response.json();
 
       resultDiv.style.display = "block";
-      resultDiv.innerHTML = `
+      renderResult(data);
+    });
+
+      function renderResult(data) {
+        const resultDiv = document.getElementById("result");
+
+          resultDiv.innerHTML = `
         <h3>Repair Details</h3>
-        <p><strong>Reference:</strong> ${data.ref}</p>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Device:</strong> ${data.deviceType}</p>
-        <p><strong>Service:</strong> ${data.serviceType || "N/A"}</p>
+        <p><strong>🧾 Reference:</strong> ${data.ref}</p>
+        <p><strong>👤 Name:</strong> ${data.name}</p>
+        <p><strong>📱 Device:</strong> ${data.deviceType}</p>
+        <p><strong>🧰 Service:</strong> ${data.serviceType || "N/A"}</p>
+
         <p><strong>Status:</strong> 
           <span class="status ${
             data.status === "Pending" ? "status-pending" :
@@ -74,12 +81,88 @@
             ${data.status}
           </span>
         </p>
-        <p><strong>Technician:</strong> ${data.technician}</p>
-        <p><strong>Price Range:</strong> ${data.priceRange || "Not set yet"}</p>
-        <p><strong>Pickup Option:</strong> ${data.pickupOption}</p>
-        <p><strong>Last Updated:</strong> ${new Date(data.updatedAt).toLocaleString()}</p>
+
+        <p><strong>🧑‍🔧 Technician:</strong> ${data.technician}</p>
+        <p><strong>💰 Price Range:</strong> ${data.priceRange || "Not set yet"}</p>
+
+        <p><strong>Payment Status:</strong>
+          <span class="status ${
+            data.paymentStatus === "Paid" ? "status-completed" :
+            data.paymentStatus === "Pending" ? "status-progress" :
+            data.paymentStatus === "Failed" ? "status-cancelled" :
+            "status-pending"
+          }">
+            ${data.paymentStatus || "Unpaid"}
+          </span>
+        </p>
+
+        <p><strong>💳 Payment Type:</strong> ${data.paymentType || "Deposit"}</p>
+        <p><strong>💵 Requested Amount:</strong> ${data.paymentRequestedAmount || 0}</p>
+        <p><strong>✅ Paid Amount:</strong> ${data.paymentAmount || 0}</p>
+        <p><strong>🧾 M-Pesa Receipt:</strong> ${data.mpesaReceiptNumber || "N/A"}</p>
+
+        <p><strong>🚚 Pickup Option:</strong> ${data.pickupOption}</p>
+        <p><strong>⏱️ Last Updated:</strong> ${new Date(data.updatedAt).toLocaleString()}</p>
+
+        ${
+          data.paymentStatus !== "Paid" && Number(data.paymentRequestedAmount || 0) > 0
+            ? `<button onclick="payNow('${data.ref}', '${document.getElementById("phone").value.trim()}')">Pay Now</button>`
+            : ""
+        }
       `;
-    });
+      }
+
+      async function payNow(ref, phone) {
+        const response = await fetch('/api/mpesa/customer-pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ref, phone })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(`${data.message || "Failed to initiate payment"}${data.error ? " - " + JSON.stringify(data.error) : ""}`);
+          return;
+        }
+
+        alert("M-Pesa prompt sent to your phone. Waiting for confirmation...");
+
+        // start auto-check
+        startPaymentPolling(ref, phone);
+      }
+
+      let pollingInterval;
+
+      function startPaymentPolling(ref, phone) {
+        if (pollingInterval) clearInterval(pollingInterval);
+
+        pollingInterval = setInterval(async () => {
+          try {
+            const response = await fetch('/api/bookings/lookup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ref, phone })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) return;
+
+            // re-render UI with new data
+            renderResult(data); // 👈 we’ll fix this below
+
+            if (data.paymentStatus === "Paid") {
+              clearInterval(pollingInterval);
+              alert("✅ Payment received successfully!");
+            }
+
+          } catch (err) {
+            console.log("Polling error:", err);
+          }
+        }, 5000); // every 5 seconds
+      }
+
   </script>
 </body>
 </html>

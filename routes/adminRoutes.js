@@ -1,3 +1,5 @@
+
+const { getMpesaAccessToken, initiateStkPush, queryStkPush } = require('../services/mpesaService');
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -150,6 +152,84 @@ router.get('/debug-tech1', (req, res) => {
     TECH1_PASSWORD_LENGTH: process.env.TECH1_PASSWORD ? process.env.TECH1_PASSWORD.length : 0,
     TECH1_NAME: process.env.TECH1_NAME || null
   });
+});
+
+router.get('/mpesa/token', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const token = await getMpesaAccessToken();
+    res.json({ message: "Token generated", token });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to generate token",
+      error: error.response?.data || error.message
+    });
+  }
+});
+
+const Booking = require('../models/Booking');
+
+router.post('/mpesa/stk-push', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { phone, amount, ref, paymentType } = req.body;
+
+    if (!phone || !amount || !ref) {
+      return res.status(400).json({ message: "phone, amount and ref are required" });
+    }
+
+    // Find booking by ref (last 6 chars of _id)
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+    const booking = bookings.find(
+      b => String(b._id).slice(-6).toUpperCase() === String(ref).trim().toUpperCase()
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found for this ref" });
+    }
+
+    const response = await initiateStkPush({
+        phone,
+        amount,
+        accountReference: ref,
+        transactionDesc: `${paymentType || "Repair payment"} for ${ref}`
+      });
+    // Save checkout request id + amount on booking
+    booking.checkoutRequestId = response.CheckoutRequestID || "";
+    booking.paymentAmount = Number(amount);
+    booking.paymentStatus = "Pending";
+    await booking.save();
+
+    res.json({
+      message: "STK Push initiated",
+      response
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to initiate STK Push",
+      error: error.response?.data || error.message
+    });
+  }
+});
+
+router.post('/mpesa/query', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { checkoutRequestId } = req.body;
+
+    if (!checkoutRequestId) {
+      return res.status(400).json({ message: "checkoutRequestId is required" });
+    }
+
+    const response = await queryStkPush(checkoutRequestId);
+
+    res.json({
+      message: "STK query complete",
+      response
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to query STK status",
+      error: error.response?.data || error.message
+    });
+  }
 });
 
 module.exports = router;

@@ -43,7 +43,7 @@ router.get('/', requireAuth, requireAdmin, async (req, res) => {
 // ✅ UPDATE booking (status/technician) + send status SMS
 router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { status, technician, priceRange } = req.body;
+   const { status, technician, priceRange, paymentRequestedAmount, paymentType } = req.body;
 
     const existingBooking = await Booking.findById(req.params.id);
     if (!existingBooking) {
@@ -54,6 +54,10 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
     if (status) updatePayload.status = status;
     if (technician) updatePayload.technician = technician;
     if (priceRange) updatePayload.priceRange = priceRange;
+    if (paymentRequestedAmount !== undefined) {
+        updatePayload.paymentRequestedAmount = Number(paymentRequestedAmount) || 0;
+      }
+    if (paymentType) updatePayload.paymentType = paymentType;  
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       req.params.id,
@@ -130,7 +134,12 @@ router.post('/lookup', async (req, res) => {
       status: match.status,
       technician: match.technician || "Unassigned",
       createdAt: match.createdAt,
-      updatedAt: match.updatedAt
+      updatedAt: match.updatedAt,
+      paymentStatus: match.paymentStatus,
+      paymentType: match.paymentType,
+      paymentRequestedAmount: match.paymentRequestedAmount,
+      paymentAmount: match.paymentAmount,
+      mpesaReceiptNumber: match.mpesaReceiptNumber,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

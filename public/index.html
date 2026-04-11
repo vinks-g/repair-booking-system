@@ -5,186 +5,509 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-  <div class="container">
-    <div class="dashboard-header">
-      <img src="/images/logo.jpeg" class="logo" />
-      <div class="brand-title">Vinton Solutions</div>
-      <div class="brand-sub">Reliable Electronics Repair Services</div>
-    </div>
+<body class="page-shell">
+  <div class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">Vinton Solutions</div>
 
-    <div class="stats-box hero">
-      <h2>Fast, Reliable Repairs for Phones, Laptops, TVs & More</h2>
-      <p class="muted">
-        Professional diagnostics, trusted repairs, and quick support for your electronics.
-      </p>
+      <button class="menu-toggle" onclick="toggleMenu()">
+        <i data-lucide="menu" class="icon"></i>
+      </button>
 
-      <div class="cta-buttons">
-        <button onclick="document.getElementById('booking-section').scrollIntoView({ behavior: 'smooth' })">
-            Book Your Repair Now
-        </button>
-        <button onclick="window.location.href='/status'">
-            Check Repair Status
-        </button>
+      <div class="nav-links" id="navLinks">
+        <a href="/">Home</a>
+        <a href="/book">Book Repair</a>
+        <a href="/status">Track Repair</a>
       </div>
     </div>
-
-
-    <div class="grid-3">
-
-        <div class="card">
-          <h2 class="section-title">
-          <i data-lucide="wrench" class="icon"></i>
-          Our Services
-          </h2>
-
-          <p><i data-lucide="smartphone" class="icon"></i> Phone Repair – screens, batteries, charging ports</p>
-          <p><i data-lucide="laptop" class="icon"></i> Laptop Repair – software, hardware, upgrades</p>
-          <p><i data-lucide="tv" class="icon"></i> TV Repair – backlight, boards, display issues</p>
-          <p><i data-lucide="speaker" class="icon"></i> Sound Systems & Home Theatre Repairs</p>
-          <p><i data-lucide="truck" class="icon"></i> Pickup & Delivery Available</p>
-        </div>
-
-        <div class="card">
-              <h2 class="section-title">
-                <i data-lucide="shield-check" class="icon"></i>
-                Why Choose Vinton Solutions
-              </h2>
-
-              <p><i data-lucide="check-circle" class="icon"></i> Fast turnaround time</p>
-              <p><i data-lucide="check-circle" class="icon"></i> Professional diagnostics</p>
-              <p><i data-lucide="check-circle" class="icon"></i> Affordable and transparent pricing</p>
-              <p><i data-lucide="check-circle" class="icon"></i> Trusted local repair service</p>
-        </div>
-
-        <div class="card">
-          <h2 class="section-title">
-            <i data-lucide="phone-call" class="icon"></i>
-            Contact Us
-          </h2>
-
-          <p><strong><i data-lucide="phone" class="icon"></i> Phone:</strong> +254 114360910</p>
-          <p><strong><i data-lucide="map-pin" class="icon"></i> Location:</strong> Kerugoya (Near Machere Building)</p>
-          <p class="muted">Call or WhatsApp us for quick assistance.</p>
-        </div>
-    </div>
-
-    <div id="booking-section" class="card">
-      <h2 class="section-title">
-        <i data-lucide="clipboard-list" class="icon"></i>
-        Repair Booking Form
-      </h2>
-
-      <form id="bookingForm">
-        <label for="name">
-          <i data-lucide="user" class="icon"></i> Full Name
-        </label>
-        <input type="text" id="name" placeholder="Enter your full name" required />
-
-        <label for="phone">
-          <i data-lucide="phone" class="icon"></i> Phone Number
-        </label>
-        <input type="text" id="phone" placeholder="e.g. 0712345678" required />
-
-        <label for="serviceType">
-          <i data-lucide="wrench" class="icon"></i> Service Type
-        </label>
-        <select id="serviceType" required>
-          <option value="">Select Service Type</option>
-          <option value="Phone Repair">Phone Repair</option>
-          <option value="Laptop Repair">Laptop Repair</option>
-          <option value="TV Repair">TV Repair</option>
-          <option value="Game Console Repair">Game Console Repair</option>
-          <option value="Other">Other</option>
-        </select>
-
-
-    
-
-        <label for="deviceType">
-          <i data-lucide="smartphone" class="icon"></i> Device Type
-        </label>
-        <input type="text" id="deviceType" placeholder="e.g. iPhone 13, HP Laptop, Samsung TV" required />
-
-        <label for="issueDescription">
-          <i data-lucide="alert-circle" class="icon"></i> Issue Description
-        </label>
-        <textarea id="issueDescription" placeholder="Describe the problem" required></textarea>
-
-        <label for="pickupOption">
-          <i data-lucide="truck" class="icon"></i> Pickup Option
-        </label>
-        <select id="pickupOption">
-          <option value="Walk-in">Walk-in</option>
-          <option value="Pickup & Delivery">Pickup & Delivery</option>
-        </select>
-
-        <label for="locationNotes">
-          <i data-lucide="map-pin" class="icon"></i> Location Notes
-        </label>
-        <input type="text" id="locationNotes" placeholder="If pickup: area + landmark (optional)" />
-
-        <label for="bookingDate">
-          <i data-lucide="calendar" class="icon"></i> Preferred Booking Date
-        </label>
-        <input type="date" id="bookingDate" required />
-
-        <button type="submit">Submit Booking</button>
-      </form>
-
-      <p id="message" class="message"></p>
-    </div>
   </div>
 
-   <div class="footer">
-  <div class="footer-links">
-    <a href="/">Home</a>
-    <a href="/status">Track Repair</a>
-    <a href="/login">Admin Login</a>
+  <section class="full-width-section dark">
+    <div class="section-inner hero-layout">
+      <div class="hero-copy">
+
+   <div class="brand-hero">
+      <div class="brand-logo-box">
+        <img src="/images/logo.jpeg" alt="Vinton Solutions Logo">
+      </div>
+      <div>
+        <div class="brand-name">Vinton Solutions</div>
+        <div class="brand-tagline">Reliable Electronics Repair Services</div>
+      </div>
+     </div>
+
+     <div class="hero-badge">Trusted Repairs • Fast Support • M-Pesa Ready</div>
+        <h1>
+          Professional <span class="highlight-text">Repair & Tech Support</span> For Your Devices
+        </h1>
+        <p>
+          Vinton Solutions helps customers across Kenya repair phones, laptops, TVs, home electronics,
+          security systems and more with reliable service, clear pricing, and real-time updates.
+        </p>
+
+        <div class="hero-actions">
+          <button onclick="window.location.href='/book'">Book Your Repair</button>
+          <button onclick="window.location.href='/status'">Track Your Repair</button>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <img src="/images/hero-repair.jpg" alt="Vinton Solutions electronics repair service" />
+      </div>
+    </div>
+  </section>
+
+  <section class="full-width-section featured-band-section">
+  <div class="section-inner">
+    <div class="featured-band">
+      <div class="featured-band-card">
+        <i data-lucide="smartphone" class="icon"></i>
+        <div>
+          <strong>Phone & Laptop Repair</strong>
+          <span>Fast diagnostics and reliable fixes</span>
+        </div>
+      </div>
+
+      <div class="featured-band-card">
+        <i data-lucide="shield" class="icon"></i>
+        <div>
+          <strong>Security Installations</strong>
+          <span>CCTV, biometric and home systems</span>
+        </div>
+      </div>
+
+      <div class="featured-band-card">
+        <i data-lucide="truck" class="icon"></i>
+        <div>
+          <strong>Pickup & Delivery</strong>
+          <span>Convenient support where available</span>
+        </div>
+      </div>
+
+      <div class="featured-band-card">
+        <i data-lucide="wallet" class="icon"></i>
+        <div>
+          <strong>Flexible Payments</strong>
+          <span>M-Pesa deposits, balances and full payment</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <p>&copy; 2026 Vinton Solutions. All rights reserved.</p>
-</div>
+</section>
 
-  <script>
-    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+  <section class="full-width-section soft">
+    <div class="section-inner">
+      <div class="trust-grid">
+        <div class="trust-card">
+          <i data-lucide="clock-3" class="icon"></i>
+          <h3>Fast Turnaround</h3>
+          <p>Quick diagnosis, repair progress updates, and timely support.</p>
+        </div>
 
-      const bookingData = {
-        name: document.getElementById('name').value,
-        phone: document.getElementById('phone').value,
-        serviceType: document.getElementById('serviceType').value,
-        deviceType: document.getElementById('deviceType').value,
-        issueDescription: document.getElementById('issueDescription').value,
-        pickupOption: document.getElementById('pickupOption').value,
-        locationNotes: document.getElementById('locationNotes').value,
-        bookingDate: document.getElementById('bookingDate').value
-      };
+        <div class="trust-card">
+          <i data-lucide="badge-check" class="icon"></i>
+          <h3>Trusted Service</h3>
+          <p>Careful handling of your devices by a growing professional team.</p>
+        </div>
 
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData)
-      });
+        <div class="trust-card">
+          <i data-lucide="messages-square" class="icon"></i>
+          <h3>SMS & Email Updates</h3>
+          <p>Stay informed from booking to payment and repair completion.</p>
+        </div>
 
-      const data = await response.json();
+        <div class="trust-card">
+          <i data-lucide="wallet" class="icon"></i>
+          <h3>M-Pesa Payments</h3>
+          <p>Easy and secure payment flow for deposits, balances, and full payments.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      if (response.ok) {
-        document.getElementById('message').innerText = "Booking submitted successfully!";
-        document.getElementById('message').style.color = "green";
-        document.getElementById('bookingForm').reset();
-      } else {
-        document.getElementById('message').innerText = "Error: " + (data.error || data.message || "Something went wrong");
-        document.getElementById('message').style.color = "red";
-      }
-    });
+  <section class="full-width-section pattern-light">
+    <div class="section-inner">
+      <div class="section-heading">
+        <h2>Our Services</h2>
+        <p class="section-lead">
+          We handle a wide range of repair, installation, and device support services for homes, offices, and businesses.
+        </p>
+      </div>
+
+      <div class="service-slider">
+        <div class="service-tile">
+          <img src="/images/phone-repair.jpg" alt="Phone repair" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="smartphone" class="icon"></i>
+              Device Support
+            </div>
+
+            
+            <h3>Phone Repair</h3>
+            <p>Screen replacement, charging ports, batteries, microphones, speakers and software fixes.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/laptop-repair.jpg" alt="Laptop repair" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="laptop" class="icon"></i>
+              Computer Repair
+            </div>
+
+
+            <h3>Laptop Repair</h3>
+            <p>Software installation, screen repairs, broken hinges, hardware upgrades and diagnostics.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/tv-repair.jpg" alt="TV repair" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="tv" class="icon"></i>
+              Entertainment
+            </div>
+
+
+            <h3>TV & Home Theatre</h3>
+            <p>TV backlight issues, board repairs, home theatre troubleshooting and sound system repair.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/cctv-installation.jpg" alt="CCTV installation" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="camera" class="icon"></i>
+              Security Setup
+            </div>
+
+            <h3>CCTV Installation</h3>
+            <p>Professional camera setup for homes, offices, shops, and other business premises.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/home-security.jpg" alt="Security systems" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="shield" class="icon"></i>
+              Security Systems
+            </div>
+
+            <h3>Home Security Systems</h3>
+            <p>Security device setup and support for homes and workplaces that need stronger protection.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/biometric-installation.jpg" alt="Biometric systems" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="scan-face" class="icon"></i>
+              Access Control
+            </div>
+
+
+            <h3>Biometric Security</h3>
+            <p>Biometric access systems for attendance, entry control, and modern workplace security.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/tv-mounting.jpg" alt="TV mounting" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="monitor-up" class="icon"></i>
+              Installation
+            </div>
+
+            <h3>TV Mounting</h3>
+            <p>Neat and secure TV installation for homes, offices, meeting rooms, and entertainment spaces.</p>
+          </div>
+        </div>
+
+        <div class="service-tile">
+          <img src="/images/fridge-repair.jpg" alt="Fridge repair" />
+          <div class="service-tile-content">
+
+            <div class="service-meta">
+              <i data-lucide="snowflake" class="icon"></i>
+              Appliance Repair
+            </div>
+
+            <h3>Fridge Repairs</h3>
+            <p>Repair support for selected refrigeration faults and electrical appliance problems.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+   <section class="full-width-section soft">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>Why Customers Choose Vinton Solutions</h2>
+          <p class="section-lead">
+            We combine dependable repair work, clear communication, flexible service options, and modern payment support to make your repair experience simple and trustworthy.
+          </p>
+        </div>
+
+        <div class="feature-split enhanced-split">
+          <div class="feature-panel why-panel">
+            <div class="panel-badge">
+              <i data-lucide="shield-check" class="icon"></i>
+              Why Choose Us
+            </div>
+
+            <h3>Reliable service built around trust, speed, and clear communication.</h3>
+
+            <p>
+              At Vinton Solutions, we focus on practical and professional repair support for both individuals and businesses.
+              From diagnostics and estimates to payment and completion updates, our systems are designed to keep customers informed
+              and confident throughout the repair process.
+            </p>
+
+            <div class="mini-list">
+              <p><i data-lucide="check-circle" class="icon"></i> Transparent repair estimates</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Flexible payment options including M-Pesa</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Pickup and delivery support</p>
+              <p><i data-lucide="check-circle" class="icon"></i> SMS and email communication flow</p>
+              <p><i data-lucide="check-circle" class="icon"></i> Support for homes, offices, and businesses</p>
+            </div>
+          </div>
+
+          <div class="feature-panel areas-panel dark-card">
+            <div class="panel-badge">
+              <i data-lucide="map" class="icon"></i>
+              Areas We Serve
+            </div>
+
+            <h3>Serving customers in Kerugoya and expanding across Kenya.</h3>
+
+            <p>
+              We currently serve customers in Kerugoya, Kirinyaga County, and nearby areas by arrangement.
+              Our long-term goal is to support wider repair, installation, pickup, and delivery coverage across Kenya.
+            </p>
+
+            <div class="coverage-grid">
+              <div class="coverage-pill"><i data-lucide="map-pin" class="icon"></i> Kerugoya</div>
+              <div class="coverage-pill"><i data-lucide="map-pin" class="icon"></i> Kirinyaga County</div>
+              <div class="coverage-pill"><i data-lucide="map-pin" class="icon"></i> Nearby towns</div>
+              <div class="coverage-pill"><i data-lucide="truck" class="icon"></i> Pickup by arrangement</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <section class="full-width-section pattern-light">
+    <div class="section-inner">
+      <div class="section-heading">
+        <h2>Frequently Asked Questions</h2>
+        <p class="section-lead">
+          Here are some common questions customers ask before booking a repair.
+        </p>
+      </div>
+
+      <div class="faq-accordion">
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>What devices can Vinton Solutions repair?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>We repair phones, laptops, TVs, sound systems, selected appliances, CCTV systems, biometric systems, and other electronics support equipment.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>What is the repair process?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>You book the repair, we diagnose the issue, provide a repair estimate, request payment where needed, carry out the repair, and keep you updated until completion.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>What does the repair estimate include?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>The estimate may include labor, replacement parts, installation work, and any required deposit depending on the type of repair or service requested.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>Do you offer any type of warranty on repairs?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Warranty depends on the repair category and the parts used. Clear warranty terms can be shared once the estimate is issued.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>Do you offer pickup and delivery?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Yes, pickup and delivery can be arranged depending on your location and the nature of the device or installation request.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question-row">
+            <h3>Can I pay through M-Pesa?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Yes. We support M-Pesa payments for deposits, balances, and full payment depending on the service.</p>
+          </div>
+        </div>
+
+      </div>
+   </div>
+  </section>
+
+   <section class="full-width-section soft">
+      <div class="section-inner">
+        <div class="section-heading">
+          <h2>Contact Vinton Solutions</h2>
+          <p class="section-lead">
+            Reach out for repair bookings, service inquiries, installation requests, pickup arrangements, and support.
+          </p>
+        </div>
+
+        <div class="feature-split enhanced-split">
+          <div class="feature-panel contact-panel">
+            <div class="panel-badge">
+              <i data-lucide="phone-call" class="icon"></i>
+              Contact & Support
+            </div>
+
+            <h3>Talk to us directly when you need help.</h3>
+
+            <div class="contact-grid">
+              <div class="contact-pill">
+                <i data-lucide="phone" class="icon"></i>
+                <div>
+                  <strong>Phone</strong>
+                  <span>07114360910</span>
+                </div>
+              </div>
+
+              <div class="contact-pill">
+                <i data-lucide="mail" class="icon"></i>
+                <div>
+                  <strong>Email</strong>
+                  <span>your-email@example.com</span>
+                </div>
+              </div>
+
+              <div class="contact-pill">
+                <i data-lucide="message-circle" class="icon"></i>
+                <div>
+                  <strong>WhatsApp</strong>
+                  <span>Available during business hours</span>
+                </div>
+              </div>
+
+              <div class="contact-pill">
+                <i data-lucide="map-pin" class="icon"></i>
+                <div>
+                  <strong>Location</strong>
+                  <span>Kerugoya, Kenya</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-panel socials-panel dark-card">
+            <div class="panel-badge">
+              <i data-lucide="share-2" class="icon"></i>
+              Follow Vinton Solutions
+            </div>
+
+            <h3>Stay connected with our updates and services.</h3>
+
+            <div class="mini-list social-list">
+              <a href="https://x.com/yourhandle" target="_blank" class="social-link twitter-link">
+                <i class="fab fa-x-twitter social-icon"></i>
+                <span>Follow us on X</span>
+              </a>
+
+              <a href="https://facebook.com/yourpage" target="_blank" class="social-link facebook-link">
+                <i class="fab fa-facebook social-icon"></i>
+                <span>Follow us on Facebook</span>
+              </a>
+
+              <a href="https://instagram.com/yourhandle" target="_blank" class="social-link instagram-link">
+                <i class="fab fa-instagram social-icon"></i>
+                <span>Follow us on Instagram</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   <section class="full-width-section dark">
+    <div class="section-inner">
+      <div class="cta-panel">
+        <h2>Ready to Repair Your Device?</h2>
+        <p>
+          Book a repair now, track your progress online, and pay securely when your estimate is ready.
+        </p>
+
+        <div class="cta-buttons">
+          <button onclick="window.location.href='/book'">Book a Repair Now</button>
+          <button onclick="window.location.href='/status'">Check Repair Status</button>
+        </div>
+      </div>
+    </div>
+   </section>
+
+   <footer class="footer">
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/book">Book Repair</a>
+      <a href="/status">Track Repair</a>
+    </div>
+    <p>&copy; 2026 Vinton Solutions. Reliable electronics repair services in Kenya.</p>
+   </footer>
+
+   <script>
+    function toggleMenu() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('show');
+    }
 
     window.onload = function () {
       lucide.createIcons();
     };
 
-  
+    function toggleFAQ(element) {
+      element.classList.toggle("active");
+    };
   </script>
-
 </body>
 </html>

@@ -7,12 +7,12 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-  <img src="/images/logo.jpeg" class="logo" />
-<div class="brand-title">Vinton Solutions</div>
-<div class="brand-sub">Reliable Electronics Repair Services</div>
+  <div class="container">
+    <img src="/images/logo.jpeg" class="logo" />
+    <div class="brand-title">Vinton Solutions</div>
+    <div class="brand-sub">Reliable Electronics Repair Services</div>
 
-      <p><i data-lucide="layout-dashboard" class="icon"></i> Admin Dashboard</p>
-    </div>
+    <p><i data-lucide="layout-dashboard" class="icon"></i> Admin Dashboard</p>
 
     <div class="actions">
       <button onclick="logout()"><i data-lucide="log-out" class="icon"></i> Logout</button>
@@ -58,6 +58,7 @@
         <p><strong>Completed:</strong> ${stats.completed}</p>
         <p><strong>Cancelled:</strong> ${stats.cancelled}</p>
       `;
+
       lucide.createIcons();
     }
 
@@ -90,7 +91,8 @@
           <p><strong>Price Range:</strong> ${booking.priceRange || "Not set"}</p>
           <p><strong>Issue:</strong> ${booking.issueDescription}</p>
           <p><strong>Date:</strong> ${new Date(booking.bookingDate).toDateString()}</p>
-          <p><strong>Status:</strong> 
+
+          <p><strong>Status:</strong>
             <span class="status ${
               booking.status === "Pending" ? "status-pending" :
               booking.status === "In Progress" ? "status-progress" :
@@ -100,10 +102,56 @@
               ${booking.status}
             </span>
           </p>
+
           <p><strong>Technician:</strong> ${booking.technician || "Unassigned"}</p>
 
+          <p><strong>Payment Status:</strong>
+            <span class="status ${
+              booking.paymentStatus === "Paid" ? "status-completed" :
+              booking.paymentStatus === "Pending" ? "status-progress" :
+              booking.paymentStatus === "Failed" ? "status-cancelled" :
+              "status-pending"
+            }">
+              ${booking.paymentStatus || "Unpaid"}
+            </span>
+          </p>
+
+          <p><strong>Payment Type:</strong> ${booking.paymentType || "Deposit"}</p>
+          <p><strong>Requested Amount:</strong> ${booking.paymentRequestedAmount || 0}</p>
+          <p><strong>Paid Amount:</strong> ${booking.paymentAmount || 0}</p>
+          <p><strong>M-Pesa Receipt:</strong> ${booking.mpesaReceiptNumber || "N/A"}</p>
+
           <div class="inline-group" style="margin-top: 12px;">
-            <input type="text" placeholder="e.g. KES 1,500 - 3,000" id="price-${booking._id}" />
+            <input
+              type="number"
+              min="1"
+              placeholder="Payment amount"
+              id="payamt-${booking._id}"
+              value="${booking.paymentRequestedAmount || ""}"
+            />
+            <button onclick="setPaymentAmount('${booking._id}')">Save Payment Amount</button>
+          </div>
+
+          <div class="inline-group" style="margin-top: 12px;">
+            <select id="paytype-${booking._id}">
+              <option value="Deposit" ${booking.paymentType === "Deposit" ? "selected" : ""}>Deposit</option>
+              <option value="Full Payment" ${booking.paymentType === "Full Payment" ? "selected" : ""}>Full Payment</option>
+              <option value="Balance" ${booking.paymentType === "Balance" ? "selected" : ""}>Balance</option>
+            </select>
+            <button onclick="setPaymentType('${booking._id}')">Save Payment Type</button>
+          </div>
+
+          <div class="inline-group" style="margin-top: 12px;">
+            <button onclick="payWithMpesa('${booking._id}', '${booking.phone}')">Pay with M-Pesa</button>
+          </div>
+
+          <div class="inline-group" style="margin-top: 12px;">
+            <input
+              type="text"
+              placeholder="e.g. KES 1,500 - 3,000"
+              id="price-${booking._id}"
+              value="${booking.priceRange || ""}"
+            />
             <button onclick="setPrice('${booking._id}')">Save Price</button>
           </div>
 
@@ -127,6 +175,7 @@
 
         container.appendChild(div);
       });
+
       lucide.createIcons();
     }
 
@@ -172,15 +221,92 @@
       fetchStats();
     }
 
+    async function setPaymentAmount(id) {
+      const input = document.getElementById(`payamt-${id}`);
+      const value = input.value.trim();
+
+      if (!value || Number(value) < 1) {
+        alert("Enter a valid payment amount.");
+        return;
+      }
+
+      const response = await fetch(`/api/bookings/${id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentRequestedAmount: Number(value) })
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+        return;
+      }
+
+      fetchBookings();
+    }
+
+    async function setPaymentType(id) {
+      const select = document.getElementById(`paytype-${id}`);
+      const value = select.value;
+
+      const response = await fetch(`/api/bookings/${id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentType: value })
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+        return;
+      }
+
+      fetchBookings();
+    }
+
+    async function payWithMpesa(id, phone) {
+      const amountInput = document.getElementById(`payamt-${id}`);
+      const amount = Number(amountInput ? amountInput.value.trim() : 0);
+
+      const paymentTypeSelect = document.getElementById(`paytype-${id}`);
+      const paymentType = paymentTypeSelect ? paymentTypeSelect.value : "Deposit";
+
+      if (!amount || amount < 1) {
+        alert("Please enter and save a valid payment amount first.");
+        return;
+      }
+
+      const ref = id.slice(-6).toUpperCase();
+
+      const response = await fetch('/api/admin/mpesa/stk-push', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone,
+          amount,
+          ref,
+          paymentType
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to initiate M-Pesa payment");
+        return;
+      }
+
+      alert("M-Pesa prompt sent successfully.");
+      fetchBookings();
+    }
+
     fetchStats();
     fetchBookings();
+
+    window.onload = function () {
+      lucide.createIcons();
+    };
   </script>
-
-  <script>
-  window.onload = function () {
-    lucide.createIcons();
-  };
-</script>
-
 </body>
 </html>

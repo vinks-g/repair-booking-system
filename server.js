@@ -1,3 +1,5 @@
+const mpesaRoutes = require('./routes/mpesaRoutes');
+
 require('dotenv').config();
 
 const express = require('express');
@@ -12,7 +14,7 @@ const { requireTechnician } = require('./middleware/roles');
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-const app = express(); // ✅ app must be created before app.use/app.get
+const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
@@ -38,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/mpesa', mpesaRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -49,6 +52,10 @@ app.get('/login', (req, res) => {
 
 app.get('/status', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'status.html'));
+});
+
+app.get('/book', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'book.html'));
 });
 
 app.get('/admin', requireAuth, requireAdmin, (req, res) => {
